@@ -11,9 +11,13 @@ import (
    "bytes"
    "log"
    "os/exec"
+   "encoding/json"
 )
 //CPU'S
 var cpus [5]string;
+type CountG struct{
+  counter string
+}
 
 type Ram struct {
   ramGraph string
@@ -48,6 +52,7 @@ func main() {
    mux.HandleFunc("/cpu", cpuPage)
    mux.HandleFunc("/receive", receiveAjax)
    mux.HandleFunc("/receive2", receiveAjax2)
+   mux.HandleFunc("/countProcess", countProcessURL)
    //We tell Go exactly where we can find our html file. We ask Go to parse the html file (Notice
    // the relative path). We wrap it in a call to template.Must() which handles any errors and halts if there are fatal errors
    
@@ -106,7 +111,6 @@ func main() {
          if err := templates.ExecuteTemplate(w, "process.html", nil); err != nil {
             http.Error(w, err.Error(), http.StatusInternalServerError)
          }
-      
    })
 
    /*mux.HandleFunc("/cpu", func(w http.ResponseWriter, r *http.Request) {
@@ -258,28 +262,7 @@ func ramPage(w http.ResponseWriter, r *http.Request) {
             <div class="navbar">
               <div class="navbar-inner">
                 <nav>
-                  <ul class="nav topnav">
-                    <li class="dropdown active">
-                      <form action="/process" id="processOption">
-                        <button>PROCESS</button>
-                      </form>
-                    </li>
-                    <li class="dropdown active">
-                      <form action="/cpu" id="cpuOption">
-                        <button>CPU</button>
-                      </form>
-                    </li>
-                    <li class="dropdown active">
-                      <form action="/ram" id="ramOption">
-                        <button>RAM</button>
-                      </form>
-                    </li>
-                    <li class="dropdown active">
-                      <form action="/logout" id="logoutOption">
-                        <button class="btn btn-color" type="submit">log out</button>
-                      </form>
-                    </li>
-                  </ul>
+                  
                 </nav>
               </div>
             </div>
@@ -303,7 +286,7 @@ func ramPage(w http.ResponseWriter, r *http.Request) {
 
 
 
-              <script>
+            <script>
               // Attach a submit handler to the form
               $( "#cpuOption" ).submit(function( event ) {
                
@@ -395,6 +378,7 @@ func ramPage(w http.ResponseWriter, r *http.Request) {
               });
               </script>
               <!-- end menu -->
+
 
         </div>
         <div class="span6">
@@ -623,28 +607,7 @@ func cpuPage(w http.ResponseWriter, r *http.Request) {
             <div class="navbar">
               <div class="navbar-inner">
                 <nav>
-                  <ul class="nav topnav">
-                    <li class="dropdown active">
-                      <form action="/process" id="processOption">
-                        <button>PROCESS</button>
-                      </form>
-                    </li>
-                    <li class="dropdown active">
-                      <form action="/cpu" id="cpuOption">
-                        <button>CPU</button>
-                      </form>
-                    </li>
-                    <li class="dropdown active">
-                      <form action="/ram" id="ramOption">
-                        <button>RAM</button>
-                      </form>
-                    </li>
-                    <li class="dropdown active">
-                      <form action="/logout" id="logoutOption">
-                        <button class="btn btn-color" type="submit">log out</button>
-                      </form>
-                    </li>
-                  </ul>
+
                 </nav>
               </div>
             </div>
@@ -1007,4 +970,19 @@ func percentCPU() float64{
     }
     fmt.Println("Porcentaje CPU ", percent)
     return percent
+}
+
+func countProcess() string{
+    out, err := exec.Command("/bin/sh", "-c", "ps -A --no-headers | wc -l").Output()
+    if err != nil {
+        log.Fatal(err)
+    }
+    var count string
+    count = string(out)
+    fmt.Printf("Number of running processes: %s\n", count)
+    return count
+}
+
+func countProcessURL(w http.ResponseWriter, r *http.Request) {
+  json.NewEncoder(w).Encode(countProcess)
 }

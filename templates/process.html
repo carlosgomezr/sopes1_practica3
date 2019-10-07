@@ -32,7 +32,7 @@
     <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
     <!--stylesheet PLATO-->
         <!-- The welcome struct (shown in the main.go code) is received within the HTML and we just need to use the . operator and retrieve the information we want -->
-        <title>Proccess {{.Name}}</title>
+        <title>Proccess {{.counter}}</title>
    </head>
 
 
@@ -109,6 +109,12 @@
 
 
               <script>
+                $( document ).ready(function() {
+                    console.log( "ready!" );
+                });
+                    $( window ).on( "load", function() {
+                      console.log( "window loaded" );
+                  });
               // Attach a submit handler to the form
               $( "#cpuOption" ).submit(function( event ) {
                
@@ -200,7 +206,18 @@
               });
               </script>
               <!-- end menu -->
-
+              <script>
+              
+                $(document).ready( function(){
+                    alert("me cago en satan");
+                    $.post( "/countProcess", { })
+                    .done(function( data ) {
+                      $('#countProcess').html("Porcentaje CPU Actual: " + data);
+                      alert( "Data Loaded: " + data );
+                    });  
+                }); 
+                
+              </script>
         </div>
         <div class="span6">
       </div>
